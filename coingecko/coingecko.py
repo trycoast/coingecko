@@ -59,9 +59,9 @@ def get_exchange_tickers(exchange: str) -> dict:
         dict: all tickers for a given exchange
     """
     result = {}
-    page = 0
+    page = 1
     exchange_id = EXIDS.get(exchange, exchange)
-    while tickers := fetch(f'exchanges/{exchange_id}/tickers?page={page}'):
+    while tickers := fetch(f'exchanges/{exchange_id}/tickers?page={page}').get('tickers', []):
         result.update({ticker['base']: ticker['coin_id'] for ticker in tickers if 'coin_id' in ticker})
         page += 1
     return result
