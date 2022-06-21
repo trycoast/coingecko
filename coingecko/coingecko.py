@@ -6,14 +6,13 @@ from coingecko.helpers import from_iso_8601
 
 
 EXIDS = {'ftx': 'ftx_spot'}                     # coingecko exchangeids
-# URL = 'https://api.coingecko.com/api/v3'        # coingecko endpoint
 
 
 cache = {}
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_fixed(5), reraise=True)
-@ratelimit(duration=2, sleep=True)
+@ratelimit(duration=4, sleep=True)
 def fetch(endpoint: str) -> dict:
     """ Fetches data for method.
 
@@ -63,6 +62,5 @@ def get_exchange_tickers(exchange: str) -> dict:
     exchange_id = EXIDS.get(exchange, exchange)
     while tickers := fetch(f'exchanges/{exchange_id}/tickers?page={page}').get('tickers', []):
         result.update({ticker['base']: ticker['coin_id'] for ticker in tickers if 'coin_id' in ticker})
-        print(result)
         page += 1
     return result
