@@ -6,13 +6,13 @@ from coingecko.helpers import from_iso_8601
 
 
 EXIDS = {'ftx': 'ftx_spot'}                     # coingecko exchangeids
-URL = 'https://api.coingecko.com/api/v3'        # coingecko endpoint
+# URL = 'https://api.coingecko.com/api/v3'        # coingecko endpoint
 
 
 cache = {}
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_fixed(5))
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(5), reraise=True)
 @ratelimit(duration=2, sleep=True)
 def fetch(endpoint: str) -> dict:
     """ Fetches data for method.
@@ -24,7 +24,7 @@ def fetch(endpoint: str) -> dict:
         dict: data from endpoint
     """
     headers = {'accept': 'application/json', 'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36'}
-    return requests.get(f'{URL}/{endpoint}', headers=headers).json()
+    return requests.get(f'https://api.coingecko.com/api/v3/{endpoint}', headers=headers).json()
 
 
 def get_historical_price(coinid: str, date: str) -> float:
@@ -63,5 +63,6 @@ def get_exchange_tickers(exchange: str) -> dict:
     exchange_id = EXIDS.get(exchange, exchange)
     while tickers := fetch(f'exchanges/{exchange_id}/tickers?page={page}').get('tickers', []):
         result.update({ticker['base']: ticker['coin_id'] for ticker in tickers if 'coin_id' in ticker})
+        print(result)
         page += 1
     return result
